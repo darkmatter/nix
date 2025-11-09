@@ -63,9 +63,9 @@
       );
 
       devShells = eachSystem (
-        { devshell, ... }:
+        { devshell, pkgs, ... }:
         {
-          default = devshell.fromTOML ./devshell.toml;
+          default = import ./devshell-config.nix { inherit devshell; };
         }
       );
 

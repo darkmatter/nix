@@ -1,6 +1,4 @@
-imports = [
-  "language.go"
-]
+imports = ["language.go"]
 
 [devshell]
 # This is the name of your environment. It should usually map to the project
@@ -10,25 +8,33 @@ name = "devshell"
 # Message Of The Day (MOTD) is displayed when entering the environment with an
 # interactive shell. By default it will show the project name.
 #
-# motd = ""
+motd = """
+🔨 Welcome to devshell
+
+@todo: Here are some other devshells you can check out:
+- Go: nix run 'github:nix-community/devshell-go'
+- Rust: nix run 'github:nix-community/devshell-rust'
+- Python: nix run 'github:nix-community/devshell-python'
+- Node.js: nix run 'github:nix-community/devshell-nodejs'
+- Expo: nix run 'github:nix-community/devshell-expo'
+"""
 
 # Add packages from nixpkgs here. Use `nix search nixpkgs <term>` to find the
 # package that you need.
 #
 # NOTE: don't forget to put commas between items! :)
 packages = [
-  "diffutils", # used by golangci-lint
+  "diffutils",    # used by golangci-lint
   "goreleaser",
   "mdbook",
   "mdsh",
   "webfs",
   "hyperfine",
+  "powerline-go", # Powerline-style prompt for Bash
 ]
 
 # Expose all the dependencies from a package to the environment.
-packagesFrom = [
-  "direnv"
-]
+packagesFrom = ["direnv"]
 
 # Declare commands that are available in the environment.
 [[commands]]

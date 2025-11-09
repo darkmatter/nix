@@ -6,4 +6,4 @@
 let
   devshell = import ./. { inherit system; };
 in
-devshell.fromTOML ./devshell.toml
+import ./devshell-config.nix { inherit devshell; }
