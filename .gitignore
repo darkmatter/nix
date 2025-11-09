@@ -1,12 +1,13 @@
-# go
-/devshell/devshell
+.devenv
 
-# mdbook
-/result
-/book
-
-# goreleaser
-/dist
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
 
 # direnv
-/.direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+.env
