@@ -21,10 +21,11 @@ devshell.mkShell {
         PS1="$(powerline-go \
           -error $__ERRCODE \
           -shell bash \
-          -modules duration,ssh,cwd,perms,git,hg,exit \
-          -modules-right aws,docker,venv,jobs,root \
+          -modules aws,docker,venv,duration,ssh,cwd,perms,git,hg,exit,root \
+          -modules-right jobs \
           -duration $__DURATION \
           -cwd-mode fancy \
+          -max-width 0 \
           -cwd-max-depth 3 \
           -newline \
           -cwd-max-dir-size 8 \
