@@ -1,17 +1,9 @@
-# Modules index - import this to get all devenv modules
-# Usage: imports = [ ./tooling/nix/modules ];
+# Modules index
+# This file is kept for backwards compatibility.
+# For new projects, import from modules/devenv or modules/flake-parts directly.
 { ... }:
 {
   imports = [
-    ./apps
-    ./ci
-    ./files
-    ./git-hooks
-    ./languages
-    ./formatting
-    ./vscode
-    ./scripts
-    ./packages
-
+    ./flake-parts
   ];
 }

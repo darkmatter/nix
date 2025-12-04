@@ -4,5 +4,6 @@
 {
   imports = [
     ./motd.nix
+    ./devenv.nix
   ];
 }

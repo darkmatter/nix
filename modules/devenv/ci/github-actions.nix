@@ -1,0 +1,4 @@
+{ ... }:
+{
+  # GitHub Actions configuration placeholder
+}

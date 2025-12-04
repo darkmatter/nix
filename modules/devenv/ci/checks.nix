@@ -15,13 +15,6 @@ let
       builtins.dirOf (builtins.dirOf config.devenv.root);
 in
 {
-  options.ci = {
-    buildPath = lib.mkOption {
-      type = lib.types.str;
-      description = "The path to the build directory";
-      default = gitRoot;
-    };
-  };
 
   tasks."ci:checks:all" = {
     cwd = gitRoot;
