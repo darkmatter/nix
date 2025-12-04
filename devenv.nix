@@ -19,6 +19,7 @@
 
   # https://devenv.sh/languages/
   # languages.rust.enable = true;
+  languages.nix.enable = true;
 
   # https://devenv.sh/processes/
   # processes.dev.exec = "${lib.getExe pkgs.watchexec} -n -- ls -la";
@@ -34,7 +35,7 @@
   # https://devenv.sh/basics/
   enterShell = ''
     export FONT_DIR="${pkgs.nerd-fonts.monaspace}/share/fonts/opentype/NerdFonts/Monaspice"
-    export FONT_NAME="MonaspiceNeNerdFont-Light.otf "
+    export FONT_NAME="MonaspiceNeNerdFont-Light.otf"
     export FONT_PATH="$FONT_DIR/$FONT_NAME"
     # fc-cache -f -v
 
