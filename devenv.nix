@@ -11,7 +11,7 @@ let
 in
 {
   imports = [
-    # ./modules/devenv
+    ./modules/devenv
   ];
   # https://devenv.sh/basics/
   # env.STARSHIP_CONFIG = "${config.devenv.root}/extra/starship.toml";

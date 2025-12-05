@@ -1,14 +1,14 @@
 # Git hooks configuration (pre-commit)
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  config,
+  options,
+  ...
+}: let
   # In CI, disable git-hooks
   isCI = builtins.getEnv "CI" == "true";
-  enableGitHooks = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-    description = "Enable git hooks (pre-commit)";
-  };
-  enableJavaScriptHooks = lib.mkIf options.languages.javascript.enable;
-  opts = options.darkmatter.git-hooks;
+
 in {
   options.darkmatter.git-hooks = {
     enable = lib.mkOption {
@@ -17,13 +17,21 @@ in {
       description = "Enable pre-commit hooks";
     };
     turbo.enable = lib.mkEnableOption "Enable Turbo hooks for JS/TS projects";
+    javascript.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = options.languages.javascript.enable;
+      description = "Enable JavaScript-related git hooks.";
+    };
   };
 
-  config = {
+  config = let
+    cfg = config.darkmatter.git-hooks;
+    enableGitHooks = cfg.enable && !isCI;
+  in {
     git-hooks.package = pkgs.prek; # pre-commit re-written in rust
     git-hooks.install.enable = enableGitHooks;
 
-    git-hooks.hooks = lib.mkIf options.darkmatter.git-hooks.enable {
+    git-hooks.hooks = lib.mkIf cfg.enable {
       # ===== Nix =====
       deadnix.enable = enableGitHooks; # Scan for dead code (unused bindings)
       # statix.enable = enableGitHooks; # Disabled - repeated keys pattern is intentional in devenv modules
@@ -75,13 +83,13 @@ in {
 
       # ===== Turbo =====
       # ===== Python =====
-      ruff.enable = lib.mkIf options.languages.python.enable; # Fast Python linter (replaces flake8, isort, etc.)
-      ruff-format.enable = lib.mkIf options.languages.python.enable; # Python formatter
+      ruff.enable = lib.mkIf config.languages.python.enable enableGitHooks; # Fast Python linter (replaces flake8, isort, etc.)
+      ruff-format.enable = lib.mkIf config.languages.python.enable enableGitHooks; # Python formatter
       # pyright.enable = enableGitHooks; # Disabled - use custom hook below for monorepo support
 
       # Custom pyright hook that runs from each project's directory
       # This ensures pyright uses the correct venv and config for each project
-      pyright-monorepo = lib.mkIf options.languages.python.enable {
+      pyright-monorepo = lib.mkIf config.languages.python.enable {
         enable = enableGitHooks;
         name = "pyright-monorepo";
         entry = toString (
@@ -132,7 +140,7 @@ in {
       # ===== JavaScript/TypeScript =====
       # biome.enable = enableGitHooks; # Unified linting & formatting for JS/TS/JSON
       # Format and lint using turbo with --affected flag
-      turbo-format = lib.mkIf opts.turbo.enable {
+      turbo-format = lib.mkIf cfg.turbo.enable {
         enable = enableGitHooks;
         name = "turbo-format";
         entry = "${pkgs.pnpm}/bin/pnpm turbo format --affected";
@@ -146,7 +154,7 @@ in {
           pkgs.ruff
         ];
       };
-      turbo-lint = lib.mkIf opts.turbo.enable {
+      turbo-lint = lib.mkIf cfg.turbo.enable {
         enable = enableGitHooks;
         name = "turbo-lint";
         entry = "${pkgs.pnpm}/bin/pnpm turbo lint --affected";
