@@ -14,7 +14,7 @@ in
     # ./modules/devenv
   ];
   # https://devenv.sh/basics/
-  env.STARSHIP_CONFIG = "${config.devenv.root}/extra/starship.toml";
+  # env.STARSHIP_CONFIG = "${config.devenv.root}/extra/starship.toml";
   env.AGENIX_SECRETS_DIR = secretsDir;
 
   # https://devenv.sh/packages/
