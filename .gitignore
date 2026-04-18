@@ -14,3 +14,8 @@ devenv.local.yaml
 
 # Agenix - keep secrets.nix (public key config) but ignore decrypted secrets
 secrets/*.decrypted
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key

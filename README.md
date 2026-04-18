@@ -2,6 +2,31 @@
 
 This directory contains all the nix modules that are used in this repo. We use [devenv](https://devenv.sh) which is a friendlier method to use Nix for non-Nix users, while still being powerful.
 
+## Shared Flake Utilities
+
+This flake also exposes a few runnable utilities for the team.
+
+### `rclone-s3`
+
+Mount an S3 bucket locally with `rclone`:
+
+```/dev/null/example.sh#L1-1
+nix run github:darkmatter/nix#rclone-s3 -- ~/path/to/dir bucket-name
+```
+
+This command expects:
+
+- argument 1: local mount directory
+- argument 2: S3 bucket name
+
+The wrapper also exports AWS environment variables before starting `rclone` so teammates do not need to remember the right profile settings manually. Fill in the placeholder values in `flake.nix` for your environment, for example:
+
+- `AWS_PROFILE`
+- `AWS_REGION`
+- `AWS_DEFAULT_REGION`
+
+Once mounted, unmount it the usual way for your OS when you are done.
+
 ## Quick Start
 
 **Run all the apps at once**

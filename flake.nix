@@ -4,7 +4,6 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    devenv.url = "github:cachix/devenv";
   };
 
   outputs =
@@ -16,9 +15,16 @@
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        devenv.flakeModule
         ./modules/flake-parts
       ];
+      flake = {
+        # Flake-parts modules - for use in any flake-parts based flake
+        # Usage: imports = [ inputs.darkmatter.flakeModules.default ];
+        flakeModules = {
+          default = ./modules/flake-parts;
+          agenix-rekey = ./modules/flake-parts/ci/agenix-rekey.nix;
+        };
+      };
 
       systems = [
         "x86_64-linux"
@@ -28,10 +34,7 @@
       perSystem =
         {
           config,
-          self',
-          inputs',
           pkgs,
-          system,
           ...
         }:
         {
@@ -41,29 +44,6 @@
             cachix.enable = true;
             cachix.name = "darkmatter";
           };
-
-          devenv.shells.default = {
-            imports = [ ./devenv.nix ];
-          };
         };
-
-      flake = {
-        # Flake-parts modules - for use in any flake-parts based flake
-        # Usage: imports = [ inputs.darkmatter.flakeModules.default ];
-        flakeModules = {
-          default = ./modules/flake-parts;
-          agenix-rekey = ./modules/flake-parts/ci/agenix-rekey.nix;
-        };
-
-        # Devenv modules - for use in devenv.nix files
-        # Usage: imports = [ inputs.darkmatter.devenvModules.default ];
-        devenvModules = {
-          default = ./modules/devenv;
-          go = ./modules/devenv/languages/go.nix;
-          python = ./modules/devenv/languages/python.nix;
-          javascript = ./modules/devenv/languages/javascript.nix;
-          git-hooks = ./modules/devenv/git-hooks.nix;
-        };
-      };
     };
 }
