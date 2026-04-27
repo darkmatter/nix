@@ -2,6 +2,83 @@
 
 This directory contains all the nix modules that are used in this repo. We use [devenv](https://devenv.sh) which is a friendlier method to use Nix for non-Nix users, while still being powerful.
 
+## Shared Agent Skills
+
+Team-wide agent skills live in `github:darkmatter/agents` and are re-exported here so consumers only need one Darkmatter flake input:
+
+```nix
+{
+  inputs.darkmatter.url = "git+ssh://git@github.com/darkmatter/nix";
+
+  imports = [
+    inputs.darkmatter.homeManagerModules.default
+  ];
+}
+```
+
+The default Home Manager module installs all shared `darkmatter/*` skills for Claude, Codex, and `$HOME/.agents/skills`.
+
+Personal skills can stay outside git and be layered in locally:
+
+```nix
+{
+  darkmatter.agentSkills.personalPath = /Users/me/.config/darkmatter/skills;
+}
+```
+
+Personal skills are installed with the `personal/*` prefix.
+
+## Shared Secrets
+
+NixOS hosts can import shared encrypted secrets with:
+
+```nix
+{
+  imports = [ inputs.darkmatter.nixosModules.secrets ];
+}
+```
+
+nix-darwin hosts can import the same definitions with:
+
+```nix
+{
+  imports = [ inputs.darkmatter.darwinModules.secrets ];
+}
+```
+
+By default all shared Darkmatter secrets are installed. Limit the set with:
+
+```nix
+{
+  darkmatter.secrets.names = [ "openai-api-key" ];
+}
+```
+
+## Shared Flake Utilities
+
+This flake also exposes a few runnable utilities for the team.
+
+### `rclone-s3`
+
+Mount an S3 bucket locally with `rclone`:
+
+```/dev/null/example.sh#L1-1
+nix run github:darkmatter/nix#rclone-s3 -- ~/path/to/dir bucket-name
+```
+
+This command expects:
+
+- argument 1: local mount directory
+- argument 2: S3 bucket name
+
+The wrapper also exports AWS environment variables before starting `rclone` so teammates do not need to remember the right profile settings manually. Fill in the placeholder values in `flake.nix` for your environment, for example:
+
+- `AWS_PROFILE`
+- `AWS_REGION`
+- `AWS_DEFAULT_REGION`
+
+Once mounted, unmount it the usual way for your OS when you are done.
+
 ## Quick Start
 
 **Run all the apps at once**

@@ -2,23 +2,50 @@
   description = "Darkmatter devshell - reusable Nix modules for development environments";
 
   inputs = {
+    agenix.url = "github:ryantm/agenix";
+    darkmatter-agents.url = "git+ssh://git@github.com/darkmatter/agents";
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    devenv.url = "github:cachix/devenv";
   };
 
   outputs =
     inputs@{
+      agenix,
+      darkmatter-agents,
       flake-parts,
-      devenv,
       self,
       ...
     }:
+    let
+      agentsHomeManagerModule = import ./modules/home-manager/agents.nix { inherit darkmatter-agents; };
+      darwinSecretsModule = import ./modules/darwin/secrets.nix { inherit agenix; };
+      nixosSecretsModule = import ./modules/nixos/secrets.nix { inherit agenix; };
+    in
     flake-parts.lib.mkFlake { inherit inputs; } {
+      debug = true;
       imports = [
-        devenv.flakeModule
         ./modules/flake-parts
       ];
+      flake = {
+        # Flake-parts modules - for use in any flake-parts based flake
+        # Usage: imports = [ inputs.darkmatter.flakeModules.default ];
+        flakeModules = {
+          default = ./modules/flake-parts;
+          agenix-rekey = ./modules/flake-parts/ci/agenix-rekey.nix;
+        };
+        homeManagerModules = {
+          default = agentsHomeManagerModule;
+          agents = agentsHomeManagerModule;
+        };
+        nixosModules = {
+          default = nixosSecretsModule;
+          secrets = nixosSecretsModule;
+        };
+        darwinModules = {
+          default = darwinSecretsModule;
+          secrets = darwinSecretsModule;
+        };
+      };
 
       systems = [
         "x86_64-linux"
@@ -28,42 +55,20 @@
       perSystem =
         {
           config,
-          self',
-          inputs',
           pkgs,
-          system,
           ...
         }:
         {
+
+          devShells.default = pkgs.mkShell {
+
+          };
           # Enable agenix-rekey workflow generation for this repo
           darkmatter.ci.agenix-rekey = {
             enable = true;
             cachix.enable = true;
             cachix.name = "darkmatter";
           };
-
-          devenv.shells.default = {
-            imports = [ ./devenv.nix ];
-          };
         };
-
-      flake = {
-        # Flake-parts modules - for use in any flake-parts based flake
-        # Usage: imports = [ inputs.darkmatter.flakeModules.default ];
-        flakeModules = {
-          default = ./modules/flake-parts;
-          agenix-rekey = ./modules/flake-parts/ci/agenix-rekey.nix;
-        };
-
-        # Devenv modules - for use in devenv.nix files
-        # Usage: imports = [ inputs.darkmatter.devenvModules.default ];
-        devenvModules = {
-          default = ./modules/devenv;
-          go = ./modules/devenv/languages/go.nix;
-          python = ./modules/devenv/languages/python.nix;
-          javascript = ./modules/devenv/languages/javascript.nix;
-          git-hooks = ./modules/devenv/git-hooks.nix;
-        };
-      };
     };
 }
