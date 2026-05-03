@@ -19,5 +19,9 @@ in
     description = "Optional private skills directory to install with the personal id prefix.";
   };
 
-  config._module.args.personalAgentSkillsPath = cfg.personalPath;
+  config = {
+    _module.args.personalAgentSkillsPath = cfg.personalPath;
+
+    programs.agent-skills.enable = lib.mkDefault true;
+  };
 }

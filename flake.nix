@@ -4,8 +4,12 @@
   inputs = {
     agenix.url = "github:ryantm/agenix";
     darkmatter-agents.url = "github:darkmatter/agents";
+    darkmatter-agents.inputs.agent-skills.inputs.nixpkgs.follows = "nixpkgs";
+    darkmatter-agents.inputs.agent-skills.inputs.home-manager.follows = "home-manager";
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -17,13 +21,19 @@
       ...
     }:
     let
-      agentsHomeManagerModule = import ./modules/home-manager/agents.nix { inherit darkmatter-agents; };
+      defaultHomeManagerModule = import ./modules/home-manager {
+        inherit darkmatter-agents;
+      };
+      agentsHomeManagerModule = import ./modules/home-manager/agents.nix {
+        inherit darkmatter-agents;
+      };
       darwinSecretsModule = import ./modules/darwin/secrets.nix { inherit agenix; };
       nixosSecretsModule = import ./modules/nixos/secrets.nix { inherit agenix; };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
       debug = true;
       imports = [
+        inputs.flake-parts.flakeModules.modules
         ./modules/flake-parts
       ];
       flake = {
@@ -34,7 +44,7 @@
           agenix-rekey = ./modules/flake-parts/ci/agenix-rekey.nix;
         };
         homeManagerModules = {
-          default = agentsHomeManagerModule;
+          default = defaultHomeManagerModule;
           agents = agentsHomeManagerModule;
         };
         nixosModules = {
