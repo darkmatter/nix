@@ -8,7 +8,7 @@ Team-wide agent skills live in `github:darkmatter/agents` and are re-exported he
 
 ```nix
 {
-  inputs.darkmatter.url = "git+ssh://git@github.com/darkmatter/nix";
+  inputs.darkmatter.url = "github:darkmatter/nix";
 
   imports = [
     inputs.darkmatter.homeManagerModules.default
@@ -27,6 +27,75 @@ Personal skills can stay outside git and be layered in locally:
 ```
 
 Personal skills are installed with the `personal/*` prefix.
+
+### Layer registry skills into Claude, Codex, OpenCode, Cursor, and Zed
+
+The default module can be combined with any `agent-skills-nix` catalog. Add the catalog as a flake input, pass `inputs` to Home Manager, then add a source and enable the targets you want.
+
+For a registry entry named `anthropic-skills`:
+
+```nix
+{
+  inputs = {
+    darkmatter.url = "github:darkmatter/nix";
+    anthropic-skills.url = "flake:anthropic-skills";
+
+    home-manager.url = "github:nix-community/home-manager";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs = inputs@{ home-manager, nixpkgs, darkmatter, ... }: {
+    homeConfigurations.me = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+
+      extraSpecialArgs = {
+        inherit inputs;
+      };
+
+      modules = [
+        darkmatter.homeManagerModules.default
+        ./home.nix
+      ];
+    };
+  };
+}
+```
+
+Then configure the additional catalog in `home.nix`:
+
+```nix
+{ ... }:
+
+{
+  programs.agent-skills = {
+    sources.anthropic = {
+      input = "anthropic-skills";
+      subdir = "skills";
+      idPrefix = "anthropic";
+    };
+
+    skills.enable = [
+      "anthropic/frontend-design"
+      "anthropic/skill-creator"
+    ];
+
+    targets.claude.enable = true;
+    targets.codex.enable = true;
+    targets.opencode.enable = true;
+    targets.cursor.enable = true;
+
+    # `agent-skills-nix` does not currently define a built-in Zed target,
+    # but custom targets work the same way.
+    targets.zed = {
+      enable = true;
+      dest = "$HOME/.config/zed/skills";
+      structure = "symlink-tree";
+    };
+  };
+}
+```
+
+This installs Darkmatter preset skills under `darkmatter/*` plus the selected registry skills under `anthropic/*` into Claude, Codex, OpenCode, Cursor, and Zed.
 
 ## Shared Secrets
 
