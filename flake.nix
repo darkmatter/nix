@@ -3,7 +3,7 @@
 
   inputs = {
     agenix.url = "github:ryantm/agenix";
-    darkmatter-agents.url = "git+ssh://git@github.com/darkmatter/agents";
+    darkmatter-agents.url = "github:darkmatter/agents";
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
